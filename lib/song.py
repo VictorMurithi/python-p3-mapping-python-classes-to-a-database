@@ -30,15 +30,36 @@ class Song:
         song = Song(name,album)
         song.save()
         return song
+    
+    @classmethod
+    def new_from_db(cls,row):
+        song = cls(row[1],row[2])
+        song.id = row[0]
 
+    @classmethod
+    def all(cls):
+        sql = """
+        SELECT * FROM songs
+        """
+
+        all = CURSOR. execute(sql).fetchall()
+        cls.all = [cls.new_from_db(row) for row in all]
+
+    @classmethod
+    def find_by_name(cls,name):
+        sql = """
+        SELECT * FROM songs
+        WHERE name = ?
+        LIMIT 1
+        """
+
+        song = CURSOR.execute(sql, (name,)).fetchone()
+        return cls.new_from_db(song)
+    
 # Create the table
 Song.create_table()
 
 # Create a Song instance and save it to the database
 hello = Song('Hello', "25")
 hello.save()
-
-songs = CURSOR.execute('SELECT * FROM songs')
-[row for row in songs]
-
-print(songs)
+[song.__dict__ for song in Song.all()]
